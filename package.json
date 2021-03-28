@@ -19,5 +19,6 @@
   "homepage": "https://github.com/nooromari/city_explorer_api#readme",
   "dependencies": {
     "express": "^4.17.1"
-  }
+  },
+  "devDependencies": {}
 }
