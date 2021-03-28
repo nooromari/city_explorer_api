@@ -1,13 +1,19 @@
 'use strict';
 
-const express = repuire('express');
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
 
 const app=express();
+const PORT = process.evn.PORT;
 
-app.get('/location',handleReq);
+// app.get('/location',handleReq);
 
+app.use(cors());
 
-
+app.use('*', (req, res) => {
+  res.send('all good nothing to see here!');
+});
 
 
 
