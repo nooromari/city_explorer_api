@@ -32,15 +32,15 @@ function handleReqWthr(req,res) {
 }
 
 function Location(city, cityData) {
-  this.search = city;
-  this.displayAame = cityData.display_name;
+  this.search_query = city;
+  this.formatted_query = cityData.display_name;
   this.latitude = cityData.lat;
   this.longitude = cityData.lon;
   this.type=cityData.type;
   this.icon=cityData.icon;
   this.importance=cityData.importance;
   this.class=cityData.class;
-  
+
 }
 
 
