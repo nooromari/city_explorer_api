@@ -1,6 +1,5 @@
 # city_explorer_api
 
-# Project Name
 
 **Author**: Noor AL-Omari
 **Version**: 1.0.0 
@@ -23,6 +22,10 @@
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
 -->
 
+
+## lab-06
+
+
 ### Feature1:
 
 Number and name of feature: 1. Repository Set Up
@@ -34,4 +37,44 @@ Start time: 2:30pm
 Finish time: 5:30pm
 
 Actual time needed to complete: 3 hr
+
+
+### Feature2:
+
+Number and name of feature: 2. Locations
+
+Estimate of time needed to complete: 1 hr
+
+Start time: 2:00pm
+
+Finish time: 3:30pm
+
+Actual time needed to complete: 1and half hr
+
+
+### Feature3:
+
+Number and name of feature: 3. Weather
+
+Estimate of time needed to complete: 1 hr
+
+Start time: 3:30pm
+
+Finish time: 5:00pm
+
+Actual time needed to complete: 1and half hr
+
+
+### Feature4:
+
+Number and name of feature: 4. Errors
+
+Estimate of time needed to complete: 1 hr
+
+Start time: 5:00pm
+
+Finish time: 10:00pm
+
+Actual time needed to complete: 2 hr
+
 
