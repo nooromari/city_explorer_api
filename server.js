@@ -48,15 +48,15 @@ function handleReqLoc(req,res) {
 }
 
 function handleReqWthr(req,res) {
-  const searchQWeather = req.query.search_query;
+  const searchQWeather = req.query.city;
   // const lat = req.query.latitude;
   // const lon = req.query.longitude;
   // const url = `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${WEATHER_API_KEY}&include=minutely`;
-  // const url =`https://api.weatherbit.io/v2.0/forecast/daily?city=${searchQWeather},NC&key=${WEATHER_API_KEY}&limit=10`;
-  const url =`http://api.weatherbit.io/v2.0/forecast/daily?KEY=${WEATHER_API_KEY}&city=${searchQWeather}&country=US`;
+  const url =`https://api.weatherbit.io/v2.0/forecast/daily?city=${searchQWeather},NC&key=${WEATHER_API_KEY}&limit=10`;
+  // const url =`http://api.weatherbit.io/v2.0/forecast/daily?KEY=${WEATHER_API_KEY}&city=${searchQWeather}&country=US`;
   superagent.get(url).then(wthrData =>{
-    res.send(wthrData);
-    let arr = wthrData.map(wthr => new Weather (wthr));
+    // res.send(wthrData.text);
+    let arr = JSON.parse(wthrData.text).data.map(wthr => new Weather (searchQWeather,wthr));
     res.status(200).send(arr);
   }).catch((error)=>{
     res.status(500).send(`something ${error}`);
@@ -83,8 +83,8 @@ function Location(city, cityData) {
   this.longitude = cityData.lon;
 }
 
-function Weather(weathObj) {
-  // this.search_qury = city;
+function Weather(city,weathObj) {
+  this.search_qury = city;
   this.forecast = weathObj.weather.description;
   this.time = weathObj.datetime;
 }
