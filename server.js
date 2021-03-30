@@ -4,17 +4,20 @@ require('dotenv').config();
 const express = require('express');
 const superagent = require('superagent');
 const cors = require('cors');
+const { get } = require('superagent');
 
 const app=express();
 const PORT = process.env.PORT || 3001;
 const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
+const PARKS_API_KEY = process.env.PARKS_API_KEY;
 
 app.use(cors());
 
 
 app.get('/location',handleReqLoc);
 app.get('/weather',handleReqWthr);
+app.get('/parks',handleReqPar);
 
 
 function errorHandler(err, request, response, next) {
@@ -47,9 +50,9 @@ function handleReqLoc(req,res) {
   const url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${searchQuery}&format=json`;
   superagent.get(url).then(data =>{
     // try{
-    const location = new Location(searchQuery,data[0]);
+    // const location = new Location(searchQuery,data[0]);
     // console.log(location);
-    res.send(location);
+    res.send(data);
     // res.status(200).send(location);
     // }catch(error){
     //   res.status(500).send(`something ${error}`);
@@ -62,15 +65,27 @@ function handleReqLoc(req,res) {
 function handleReqWthr(req,res) {
   const searchQWeather = req.query.city;
   // const weatherData = require('./data/weather.json');
-  const url = `https://api.weatherbit.io/v2.0/current?lat=35.7796&lon=-78.6382&key=${WEATHER_API_KEY}&include=minutely`;
-
-  const arrWeather = [];
+  const lat = req.query.lat;
+  const lon = req.query.lon;
+  // const url = `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${WEATHER_API_KEY}&include=minutely`;
+const url =`https://api.weatherbit.io/v2.0/forecast/daily?city=${searchQWeather},NC&key=${WEATHER_API_KEY}`;
+  // const arrWeather = [];
   superagent.get(url).then(data =>{
   // weatherData.data.forEach(location =>{
-    let newWeather = new Weather (searchQWeather,data[0]);
-    arrWeather.push(newWeather);
+    // let newWeather = new Weather (searchQWeather,data[0]);
+    // arrWeather.push(newWeather);
+    res.send(data);
   });
-  res.send(arrWeather);
+}
+
+function handleReqPar(req,res) {
+  const acad= 'acad';
+  const url = `https://developer.nps.gov/api/v1/parks?parkCode=${acad}&api_key=${PARKS_API_KEY}`;
+  superagent.get(url).then(data =>{
+    res.send(data);
+  });
+
+
 }
 
 function Location(city, cityData) {
@@ -87,3 +102,8 @@ function Weather(city,weathObj) {
 }
 
 app.listen(PORT, () => console.log(`App is listening on ${PORT}`));
+
+// const client = new pg.Client({
+// 	connectionString: process.env.DATABASE_URL,
+// 	ssl: { rejectUnauthorized: false },
+// });
