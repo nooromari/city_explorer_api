@@ -44,36 +44,29 @@ function handleReqLoc(req,res) {
   }).catch((error)=>{
     res.status(500).send(`something ${error}`);
   });
-
 }
 
 function handleReqWthr(req,res) {
-  const searchQWeather = req.query.city;
-  // const lat = req.query.latitude;
-  // const lon = req.query.longitude;
-  // const url = `https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lon}&key=${WEATHER_API_KEY}&include=minutely`;
-  const url =`https://api.weatherbit.io/v2.0/forecast/daily?city=${searchQWeather},NC&key=${WEATHER_API_KEY}&limit=10`;
-  // const url =`http://api.weatherbit.io/v2.0/forecast/daily?KEY=${WEATHER_API_KEY}&city=${searchQWeather}&country=US`;
+  const latitude = req.query.latitude;
+  const longitude = req.query.longitude;
+  const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${WEATHER_API_KEY}`;
   superagent.get(url).then(wthrData =>{
-    // res.send(wthrData.text);
-    let arr = JSON.parse(wthrData.text).data.map(wthr => new Weather (searchQWeather,wthr));
+    let arr = wthrData.body.data.map(wthr => new Weather (wthr));
     res.status(200).send(arr);
   }).catch((error)=>{
     res.status(500).send(`something ${error}`);
   });
 }
-function handleReqPar(req,res) {
-  const city = req.query.city;
-  const url = `https://developer.nps.gov/api/v1/parks?q=${city}&api_key=${PARKS_API_KEY}`;
-  superagent.get(url).then(par =>{
 
-    res.send(par);
+function handleReqPar(req,res) {
+  const url = `https://developer.nps.gov/api/v1/parks?parkCode=acad&api_key=${PARKS_API_KEY}`;
+  superagent.get(url).then(par =>{
+    let arr = par.body.data.map(parkData => new Park(parkData));
+    res.status(200).send(arr);
   }).catch((error)=>{
 
     res.status(500).send(`something ${error}`);
   });
-
-
 }
 
 function Location(city, cityData) {
@@ -83,10 +76,18 @@ function Location(city, cityData) {
   this.longitude = cityData.lon;
 }
 
-function Weather(city,weathObj) {
-  this.search_qury = city;
+function Weather(weathObj) {
+  // this.search_qury = city;
   this.forecast = weathObj.weather.description;
   this.time = weathObj.datetime;
+}
+
+function Park(parkData) {
+  this.name=parkData.fullName;
+  this.address=Object.values(parkData.addresses[0]).join(',');
+  this.fee=parkData.entranceFees[0].cost;
+  this.description=parkData.description;
+  this.url=parkData.url;
 }
 
 app.listen(PORT, () => console.log(`App is listening on ${PORT}`));
