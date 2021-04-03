@@ -91,8 +91,8 @@ function handleReqWthr(req, res) {
 }
 
 function handleReqPar(req, res) {
-  const parkCode = req.query.parkCode;
-  const url = `https://developer.nps.gov/api/v1/parks?parkCode=${parkCode}&api_key=${PARKS_API_KEY}`;
+  const city = req.query.search_query;
+  const url = `https://developer.nps.gov/api/v1/parks?city=${city}&api_key=${PARKS_API_KEY}&limit=10`;
   superagent.get(url).then(par => {
     let arr = par.body.data.map(parkData => new Park(parkData));
     res.status(200).send(arr);
@@ -116,7 +116,7 @@ function Weather(weathObj) {
 function Park(parkData) {
   this.name = parkData.fullName;
   this.address = Object.values(parkData.addresses[0]).join(',');
-  this.fee = parkData.entranceFees[0].cost;
+  this.fee = '0.00';
   this.description = parkData.description;
   this.url = parkData.url;
 }
