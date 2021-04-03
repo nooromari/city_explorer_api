@@ -12,19 +12,23 @@ const GEOCODE_API_KEY = process.env.GEOCODE_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const PARKS_API_KEY = process.env.PARKS_API_KEY;
 const DATABASE_URL = process.env.DATABASE_URL;
+const ENV = process.env.ENV || 'DEB';
+const NODE_ENV = process.env.NODE_ENV;
+// let client ='';
+// if(ENV==='DIV'){
+//   client = new pg.Client({connectionString: DATABASE_URL});
+// }else{client = new pg.Client({
+//   connectionString: DATABASE_URL,
+//   ssl: {rejectUnauthorized: false}
+// });}
 const options = NODE_ENV === 'production' ? { connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } } : { connectionString: DATABASE_URL };
 const client = new pg.Client(options);
 
 client.on('error', err => {
   console.log('unable to connect database');
 });
-// const client = new pg.Client({
-// 	connectionString: process.env.DATABASE_URL,
-// 	ssl: { rejectUnauthorized: false },
-// });
 
 app.use(cors());
-
 
 app.get('/location', handleReqLoc);
 app.get('/weather', handleReqWthr);
@@ -40,35 +44,38 @@ function errorHandler(err, request, response, next) {
 }
 app.use(errorHandler);
 
-
 function handleError(req, res) {
   res.status(404).send('Sorry, this page Does not exist');
 }
 
-
 function handleReqLoc(req, res) {
 
   const search_query = req.query.city; // localhost:3000/location?city=amman
-  const url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${search_query}&format=json`;
-  // client.query(sql,values).then(dbData=>{
+  const city = [search_query];
+  const sqlTable = 'SELECT * FROM locations WHERE search_query=$1;';
 
-  superagent.get(url).then(loc => {
-    if (loc.rowCount === 0) {
-      let arr = new Location(search_query, loc.body[0]);
-      const sql = 'INSERT INTO locations (search_query,formatted_query,latitude,longitude) VALUES ($1,$2,$3,$4) ';
-      const values = [search_query, loc.display_name, loc.lat, loc.lon];
-      client.query(sql, values);
-      res.status(200).send(arr);
+  client.query(sqlTable,city).then(locData =>{
+    if (locData.rows.length===0) {
 
+      const url = `https://us1.locationiq.com/v1/search.php?key=${GEOCODE_API_KEY}&q=${search_query}&format=json`;
+
+      superagent.get(url).then(loc => {
+        let arr = new Location(search_query, loc.body[0]);
+        const sql = 'INSERT INTO locations (search_query,formatted_query,latitude,longitude) VALUES ($1,$2,$3,$4) ';
+        const values = [arr.search_query, arr.formatted_query, arr.latitude, arr.longitude];
+        client.query(sql, values).then(result =>{
+          console.log(result);
+        });
+        res.status(200).send(arr);
+
+      }).catch((error) => {
+        res.status(500).send(`something ${error}`);
+      });
     } else {
-      const loc = loc.rows[0];
-      let arr = new Location(search_query, loc.body[0]);
-      res.status(200).send(arr);
+      const loc = locData.rows[0];
+      res.status(200).send(loc);
     }
-  }).catch((error) => {
-    res.status(500).send(`something ${error}`);
   });
-  // });
 }
 
 function handleReqWthr(req, res) {
@@ -90,7 +97,6 @@ function handleReqPar(req, res) {
     let arr = par.body.data.map(parkData => new Park(parkData));
     res.status(200).send(arr);
   }).catch((error) => {
-
     res.status(500).send(`something ${error}`);
   });
 }
