@@ -101,9 +101,11 @@ function handleReqPar(req, res) {
 
 function handleMovies(req,res) {
   const search_query = req.query.search_query;
-  const url = `https://api.themoviedb.org/3/movie/550?api_key=${MOVIE_API_KEY}&query=${search_query}`;
+  const url = `https://api.themoviedb.org/3/search/movie?api_key=${MOVIE_API_KEY}&query=${search_query}`;
+
   superagent.get(url).then(mov => {
-    let arr = mov.body.results.map(movData => new Movie(movData));
+    let movD = JSON.parse(mov.text.split(','));
+    let arr = movD.results.map(movData => new Movie(movData));
     res.status(200).send(arr);
   }).catch((error) => {
     res.status(500).send(`something ${error}`);
@@ -112,15 +114,15 @@ function handleMovies(req,res) {
 
 function handleYelp(req,res) {
   const search_query = req.query.search_query;
-  const url = `https://api.yelp.com/v3/businesses/search?location=${search_query}&limit=50&api_key=${YELP_API_KEY}`;
-  superagent.get(url).then(res => {
-    let arr = res.body.businesses.map(reskData => new Resturant(reskData));
-    res.status(200).send(arr);
-  }).catch((error) => {
-    res.status(500).send(`something ${error}`);
-  });
+  const url = `https://api.yelp.com/v3/businesses/search?location=${search_query}&term=restaurants&limit=5`;
+  superagent.get(url).set('Authorization', `Bearer ${YELP_API_KEY}`)
+    .then(restu => {
+      let arr = restu.body.businesses.map(reskData => new Resturant(reskData));
+      res.status(200).send(arr);
+    }).catch((error) => {
+      res.status(500).send(`something ${error}`);
+    });
 }
-// .set('Authorization', `Bearer ${YELP_API_KEY}`)
 
 function Location(city, cityData) {
   this.search_query = city;
